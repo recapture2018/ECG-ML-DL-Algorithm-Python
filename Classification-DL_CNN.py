@@ -28,11 +28,8 @@ sess=tf.InteractiveSession()
 #载入.mat文件的函数,h5py解码并转换为numpy数组
 def load_mat(path_data,name_data,dtype='float32'):
     data=hp.File(path_data)
-    arrays_d={}
-    for k,v in data.items():
-        arrays_d[k]=np.array(v)
-    dataArr=np.array(arrays_d[name_data],dtype=dtype)
-    return dataArr
+    arrays_d = {k: np.array(v) for k, v in data.items()}
+    return np.array(arrays_d[name_data],dtype=dtype)
 
 #使用TensorFlow组件完成CNN网络的搭建，与教程中参数略有不同
 def CNNnet(inputs,n_class):
