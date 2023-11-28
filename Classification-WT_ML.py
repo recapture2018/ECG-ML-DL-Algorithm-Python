@@ -27,11 +27,8 @@ from sklearn.metrics import confusion_matrix
 #载入.mat文件的函数,h5py解码并转换为numpy数组
 def load_mat(path_data,name_data,dtype='float32'):
     data=hp.File(path_data)
-    arrays_d={}
-    for k,v in data.items():
-        arrays_d[k]=np.array(v)
-    dataArr=np.array(arrays_d[name_data],dtype=dtype)
-    return dataArr
+    arrays_d = {k: np.array(v) for k, v in data.items()}
+    return np.array(arrays_d[name_data],dtype=dtype)
 
 #设定路径及文件名并载入，这里的特征来自Matlab中提取的小波系数
 #https://blog.csdn.net/qq_15746879/article/details/80340910

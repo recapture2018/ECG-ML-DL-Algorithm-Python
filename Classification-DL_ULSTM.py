@@ -28,11 +28,8 @@ sess=tf.InteractiveSession()
 #载入.mat文件的函数,h5py解码并转换为numpy数组
 def load_mat(path_data,name_data,dtype='float32'):
     data=hp.File(path_data)
-    arrays_d={}
-    for k,v in data.items():
-        arrays_d[k]=np.array(v)
-    dataArr=np.array(arrays_d[name_data],dtype=dtype)
-    return dataArr
+    arrays_d = {k: np.array(v) for k, v in data.items()}
+    return np.array(arrays_d[name_data],dtype=dtype)
 
 #使用TensorFlow组件完成ULSTM网络的搭建
 def ULSTM(x,n_input,n_hidden,n_steps,n_classes):
@@ -40,27 +37,24 @@ def ULSTM(x,n_input,n_hidden,n_steps,n_classes):
     x=tf.transpose(x,[1,0,2])    #整理数据，使之符合ULSTM接口要求
     x=tf.reshape(x,[-1,n_input])
     x=tf.split(x,n_steps)
-    
+
     #以下两句调用TF函数，生成一个单隐层的ULSTM
     lstm_cell=tf.contrib.rnn.BasicLSTMCell(n_hidden,forget_bias=1.0)
     outputs,_=tf.contrib.rnn.static_rnn(lstm_cell,x,dtype=tf.float32)
-    
+
     #以下部分将ULSTM每一步的输出拼接，形成特征向量
     for i in range(n_steps):
-        if i==0:
-            fv=outputs[0]
-        else:
-            fv=tf.concat([fv,outputs[i]],1)
+        fv = outputs[0] if i==0 else tf.concat([fv,outputs[i]],1)
     fvp=tf.reshape(fv,[-1,1,n_steps*n_hidden,1])
     shp=fvp.get_shape()
     flatten_shape=shp[1].value*shp[2].value*shp[3].value
-    
+
     fvp2=tf.reshape(fvp,[-1,flatten_shape])
-    
+
     #构建最后的全连接层
     weights=tf.Variable(tf.random_normal([flatten_shape,n_classes]))
     biases=tf.Variable(tf.random_normal([n_classes]))
-            
+
     return tf.matmul(fvp2,weights)+biases
 
 #随机获取一个batch大小的数据，用于训练
